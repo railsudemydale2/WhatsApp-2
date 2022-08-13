@@ -4,12 +4,17 @@ import styled from 'styled-components';
 import ChatIcon from '@material-ui/icons/Chat';
 import MoreVertIcon from '@material-ui/icons/More';
 import SearchIcon from '@material-ui/icons/Search';
+import * as EmailValidator from "email-validator";
 
 function Sidebar() {
   const createChat = () => {
     const input = prompt(
       'Please enter your email address for the user you wish to chat with'
     );
+
+    if (EmailValidator.validate(input)){
+        // We need to add the chat into the DB "chats" collection
+    }
 
     if(!input) return;
   };
