@@ -12,6 +12,7 @@ import MicIcon from '@material-ui/icons/Mic';
 import Message from './Message';
 import firebase from 'firebase';
 import getRecipientEmail from '../utils/getRecipientEmail';
+import TimeAgo from 'timeago-react';
 
 function ChatScreen({ chat, messages }) {
   console.log(messages);
@@ -25,6 +26,12 @@ function ChatScreen({ chat, messages }) {
       .doc(router.query.id)
       .collection('messages')
       .orderBy('timestamp', 'asc')
+  );
+
+  const [recipientSnapshot] = useCollection(
+    db
+      .collection('users')
+      .where('email', '==', getRecipientEmail(chat.users, user))
   );
 
   const showMessages = () => {
@@ -67,16 +74,32 @@ function ChatScreen({ chat, messages }) {
     setInput('');
   };
 
+  const recipient = recipientSnapshot?.docs?.[0]?.data();
   const recipientEmail = getRecipientEmail(chat.users, user);
 
   return (
     <Container>
       <Header>
-        <Avatar />
+        {recipient ? (
+          <Avatar src={recipient?.photoURL} />
+        ) : (
+          <Avatar>{recipientEmail[0]}</Avatar>
+        )}
 
         <HeaderInformation>
           <h3>{recipientEmail}</h3>
-          <p>Last seen ...</p>
+          {recipientSnapshot ? (
+            <p>
+              Last active:{' '}
+              {recipient?.lastSeen?.toDate() ? (
+                <TimeAgo datetime={recipient?.lastSeen?.toDate()} />
+              ) : (
+                'Unavailable'
+              )}
+            </p>
+          ) : (
+            <p>Loading Last active ...</p>
+          )}
         </HeaderInformation>
         <HeaderIcons>
           <IconButton>
